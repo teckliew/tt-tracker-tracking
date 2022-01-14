@@ -22,42 +22,36 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
   }
 });
 
+const onBeforeRequestHandler = (details) => {
+  if (details.method === "POST") {
+    console.log({ details, url: details.url });
+    chrome.tabs.query(
+      {
+        active: true,
+        currentWindow: true,
+      },
+      (tabs) => {
+        chrome.tabs.sendMessage(
+          tabs[0].id,
+          {
+            target: "app",
+            type: "setMessage",
+            details,
+            requestBody: details.requestBody,
+          },
+          (response) => {
+            console.log("background sent message", { response });
+            return true;
+          }
+        );
+      }
+    );
+  }
+  return true;
+};
 // Listen to the network
 chrome.webRequest.onBeforeRequest.addListener(
-  (details) => {
-    if (details.method === "POST") {
-      console.log({ details, url: details.url });
-      const requestBody = "";
-      //     decodeURIComponent(
-      //     String.fromCharCode.apply(
-      //       null,
-      //       new Uint8Array(details.requestBody.raw[0].bytes)
-      //     )
-      //   );
-      chrome.tabs.query(
-        {
-          active: true,
-          currentWindow: true,
-        },
-        (tabs) => {
-          chrome.tabs.sendMessage(
-            tabs[0].id,
-            {
-              target: "app",
-              type: "setMessage",
-              details,
-              requestBody,
-            },
-            (response) => {
-              console.log("background sent message", { response });
-              return true;
-            }
-          );
-        }
-      );
-    }
-    return true;
-  },
+  onBeforeRequestHandler,
   { urls: ["http://*.thumbtack.com/*", "https://*.thumbtack.com/*"] },
-  ["blocking", "requestBody", "extraHeaders"]
+  ["blocking", "requestBody"]
 );
