@@ -1,0 +1,32 @@
+{
+  "name": "TT Tracker Extension",
+  "description": "Extension for Thumbtack tracking events",
+  "version": "1.0",
+  "manifest_version": 2,
+  "icons": {
+    "16": "16x16.png",
+    "32": "32x32.png",
+    "128": "155x155.png"
+  },
+  "background": {
+    "scripts": ["./background.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*.thumbtack.com/*"],
+      "css": ["content.css"]
+    }
+  ],
+  "options_page": "./options.html",
+  "browser_action": {
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "<all_urls>",
+    "webRequest",
+    "webRequestBlocking",
+    "management"
+  ]
+}
